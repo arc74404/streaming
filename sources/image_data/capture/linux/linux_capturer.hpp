@@ -3,10 +3,12 @@
 #include "../interface_capturer.hpp"
 
 #include "linux_output.hpp"
+#include "registry.hpp"
 
 namespace stream::image
 {
-class LinuxCapturer final : public ICapturer<lin_impl::LinuxOutput>
+class LinuxCapturer final : private lin_impl::Registry,
+                            public ICapturer<lin_impl::LinuxOutput>
 {
 public:
     LinuxCapturer();

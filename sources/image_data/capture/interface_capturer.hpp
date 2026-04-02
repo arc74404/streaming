@@ -23,7 +23,7 @@ template <OutConcept Out>
 class ICapturer
 {
 public:
-    ICapturer(std::vector<Out>&& outputs) : m_outputs(std::move(outputs))
+    ICapturer(std::vector<Out>& outputs) : m_outputs(outputs)
     {
         if (m_outputs.empty())
         {
@@ -49,11 +49,12 @@ public:
     {
         if (s_index >= m_outputs.size()) return false;
         m_cur_output = &m_outputs[s_index];
+        return true;
     }
 
 private:
     Out* m_cur_output;
 
-    std::vector<Out> m_outputs;
+    std::vector<Out>& m_outputs;
 };
 } // namespace stream::image

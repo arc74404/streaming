@@ -43,12 +43,13 @@ ControlDevice::ControlDevice(uint8_t level_count_support)
         throw std::runtime_error("Failed to create D3D11 Device. HRESULT: " +
                                  std::to_string(hr));
     }
+    m_physical_device = std::make_unique<PhysicalDevice>(m_device);
 }
 
 PhysicalDevice
 ControlDevice::GetPhysicalDevice() const
 {
-    return PhysicalDevice(m_device);
+    return m_physical_device.get();
 }
 
 } // namespace stream::image::win_impl

@@ -6,7 +6,8 @@
 
 namespace stream::image
 {
-class WindowsCapturer final : public ICapturer<win_impl::WinOutput>
+class WindowsCapturer final : private win_impl::ControlDevice,
+                              public ICapturer<win_impl::WinOutput>
 {
 public:
     WindowsCapturer();

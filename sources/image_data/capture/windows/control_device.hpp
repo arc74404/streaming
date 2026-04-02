@@ -3,6 +3,7 @@
 #include <wrl/client.h>
 
 #include <d3d11.h>
+#include <memory>
 #include <vector>
 #include <windows.h>
 
@@ -21,5 +22,7 @@ public:
 private:
     ComPtr<ID3D11Device> m_device;
     ComPtr<ID3D11DeviceContext> m_immediate_context;
+
+    std::unique_ptr<PhysicalDevice> m_physical_device;
 };
 } // namespace stream::image::win_impl

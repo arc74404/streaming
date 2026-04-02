@@ -4,7 +4,8 @@
 namespace stream::image
 {
 WindowsCapturer::WindowsCapturer()
-    : ICapturer(win_impl::ControlDevice(3).GetPhysicalDevice().GetOutputs())
+    : win_impl::ControlDevice(3),
+      ICapturer(win_impl::ControlDevice::GetPhysicalDevice().GetOutputs())
 {
 }
 
