@@ -2,7 +2,9 @@
 
 namespace stream::image::lin_impl
 {
-std::string LinuxOutput::getNameImpl() const{
-    return "none";
+std::wstring
+LinuxOutput::getNameImpl() const
+{
+    return L"none";
 }
-}
+} // namespace stream::image::lin_impl

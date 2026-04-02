@@ -4,10 +4,11 @@
 
 namespace stream::image::lin_impl
 {
-class LinuxOutput final : public IOutput<LinuxOutput> {
+class LinuxOutput final : public IOutput<LinuxOutput>
+{
 public:
-    
-    std::string getNameImpl() const;
+    std::wstring getNameImpl() const override;
+
 private:
 };
-}
+} // namespace stream::image::lin_impl

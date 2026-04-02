@@ -5,7 +5,7 @@
 #include <utility>
 namespace stream::image::win_impl
 {
-WinOutputImpl::WinOutput(ComPtr<IDXGIOutput>&& output)
+WinOutput::WinOutput(ComPtr<IDXGIOutput>&& output)
 {
     HRESULT hr = output.As(&m_output);
     if (FAILED(hr))
@@ -14,17 +14,23 @@ WinOutputImpl::WinOutput(ComPtr<IDXGIOutput>&& output)
     }
 }
 
-std::string
-WinOutputImpl::getNameImpl() const
+std::wstring
+WinOutput::getNameImpl() const
 {
     DXGI_OUTPUT_DESC desc;
     m_output->GetDesc(&desc);
 
-    std::string name;
-    name.resize(32);
+    std::wstring name;
+    name.reserve(32);
     std::copy(desc.DeviceName, desc.DeviceName + 32,
               std::back_insert_iterator(name));
     return name;
+}
+
+ProxyViewInVideoBuffer
+WinOutput::captureImpl()
+{
+    return ProxyViewInVideoBuffer(nullptr, 0);
 }
 
 } // namespace stream::image::win_impl

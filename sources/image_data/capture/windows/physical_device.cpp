@@ -22,10 +22,10 @@ PhysicalDevice::PhysicalDevice(const ComPtr<ID3D11Device>& make_from)
             "Failed to get IDXGIAdapter from IDXGI Device");
     }
 }
-std::vector<WinOutputImpl>
+std::vector<WinOutput>
 PhysicalDevice::GetOutputs() const
 {
-    std::vector<WinOutputImpl> result;
+    std::vector<WinOutput> result;
 
     uint32_t index = 0;
 

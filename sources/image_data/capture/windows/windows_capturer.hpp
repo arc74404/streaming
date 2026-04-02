@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../capturer.hpp"
+#include "../interface_capturer.hpp"
 
 #include "control_device.hpp"
 

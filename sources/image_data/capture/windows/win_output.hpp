@@ -11,12 +11,14 @@
 namespace stream::image::win_impl
 {
 using Microsoft::WRL::ComPtr;
-class WinOutput final : IOutput<WinOutput>
+class WinOutput final : public IOutput<WinOutput>
 {
 public:
     WinOutput(ComPtr<IDXGIOutput>&& output);
 
-    std::string getNameImpl() const;
+    std::wstring getNameImpl() const override;
+
+    ProxyViewInVideoBuffer captureImpl() override;
 
 private:
     ComPtr<IDXGIOutput1> m_output;
