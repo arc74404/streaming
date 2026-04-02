@@ -5,7 +5,7 @@
 #include <utility>
 namespace stream::image::win_impl
 {
-WinOutputImpl::WinOutputImpl(ComPtr<IDXGIOutput>&& output)
+WinOutputImpl::WinOutput(ComPtr<IDXGIOutput>&& output)
 {
     HRESULT hr = output.As(&m_output);
     if (FAILED(hr))

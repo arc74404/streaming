@@ -3,11 +3,19 @@
 
 namespace stream::image
 {
-WindowsCapturer::WindowsCapturer() : m_control_device(3)
+WindowsCapturer::WindowsCapturer()
 {
+    win_impl::ControlDevice control_device(3);
+    m_outputs = 
+        std::move(control_device.GetPhysicalDevice().GetOutputs());
 }
+
+bool WindowsCapturer::pickScreen(uint32_t s_in) {
+    return true;
+}
+
 ProxyViewInVideoBuffer
-WindowsCapturer::captureScreen() const
+WindowsCapturer::capture() const
 {
     return ProxyViewInVideoBuffer(nullptr, 0);
 }

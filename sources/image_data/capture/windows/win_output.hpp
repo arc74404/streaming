@@ -11,12 +11,12 @@
 namespace stream::image::win_impl
 {
 using Microsoft::WRL::ComPtr;
-class WinOutputImpl final : public IOutput
+class WinOutput final : IOutput<WinOutput>
 {
 public:
-    WinOutputImpl(ComPtr<IDXGIOutput>&& output);
+    WinOutput(ComPtr<IDXGIOutput>&& output);
 
-    std::string getNameImpl() const override;
+    std::string getNameImpl() const;
 
 private:
     ComPtr<IDXGIOutput1> m_output;

@@ -15,7 +15,7 @@ class PhysicalDevice final
 public:
     PhysicalDevice(const ComPtr<ID3D11Device>& make_from);
 
-    std::vector<WinOutputImpl> GetOutputs() const;
+    std::vector<WinOutput> GetOutputs() const;
 
 private:
     ComPtr<IDXGIDevice> m_device;
