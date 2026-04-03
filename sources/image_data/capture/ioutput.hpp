@@ -4,13 +4,10 @@
 
 #include "../buf/proxy_view_in_video_buffer.hpp"
 
+#include "screen_info.hpp"
+
 namespace stream::image
 {
-struct ScreenInfo final
-{
-    std::wstring name;
-};
-
 template <typename Derived>
 class IOutput
 {

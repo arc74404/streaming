@@ -21,22 +21,20 @@ PhysicalDevice::PhysicalDevice(const ComPtr<ID3D11Device>& make_from)
         throw std::runtime_error(
             "Failed to get IDXGIAdapter from IDXGI Device");
     }
-}
-std::vector<WinOutput>
-PhysicalDevice::GetOutputs() const
-{
-    std::vector<WinOutput> result;
-
     uint32_t index = 0;
 
     ComPtr<IDXGIOutput> cur_out;
 
     while (m_adapter->EnumOutputs(index++, &cur_out) != DXGI_ERROR_NOT_FOUND)
     {
-        result.emplace_back(std::move(cur_out));
+        m_outputs.emplace_back(std::move(cur_out));
     }
-
-    return result;
+}
+std::vector<WinOutput>&
+PhysicalDevice::GetOutputs() const
+{
+    return m_outputs;
+    std::vector<WinOutput> result;
 }
 
 } // namespace stream::image::win_impl

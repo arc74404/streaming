@@ -12,5 +12,6 @@ public:
     WindowsCapturer();
 
 private:
+    win_impl::ControlDevice m_control_device;
 };
 } // namespace stream::image
