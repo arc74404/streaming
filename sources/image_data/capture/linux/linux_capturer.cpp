@@ -4,8 +4,7 @@
 
 namespace stream::image
 {
-LinuxCapturer::LinuxCapturer() : m_registry(m_core.createRegistry())
+LinuxCapturer::LinuxCapturer() : Registry(), ICapturer(Registry::getOutputs())
 {
-    
 }
 } // namespace stream::image

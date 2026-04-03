@@ -2,35 +2,22 @@
 
 #include <pipewire/pipewire.h>
 
-#include <cstdint>
-#include <memory>
-#include <string>
 #include <vector>
 
 namespace stream::image::lin_impl
 {
-
-struct ScreenIdAndDescription
-{
-    uint32_t id;
-    std::string name;
-};
-
 class Registry
 {
 public:
-    Registry(pw_core* core);
-    ~Registry();
+    Registry();
 
-    void pushInfo(ScreenIdAndDescription&& data);
+    std::vector<lin_impl::LinuxOutput>& getOutputs();
 
 private:
-    pw_registry* m_registry;
+    pw_main_loop* m_main_loop;
+    pw_context* m_context;
+    pw_core* m_core;
 
-    pw_registry_events m_events;
-
-    spa_hook m_registry_listener;
-
-    std::vector<ScreenIdAndDescription> m_screens_info;
+    std::vector<lin_impl::LinuxOutput> m_outputs;
 };
 } // namespace stream::image::lin_impl

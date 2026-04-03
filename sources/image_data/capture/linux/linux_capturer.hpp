@@ -9,7 +9,8 @@
 
 namespace stream::image
 {
-class LinuxCapturer final : public ICapturer<lin_impl::LinuxOutput>
+class LinuxCapturer final : private lin_impl::Registry,
+                            public ICapturer<lin_impl::LinuxOutput>
 {
 public:
     LinuxCapturer();
