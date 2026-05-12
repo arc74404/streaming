@@ -11,6 +11,8 @@
 #include "connection_params.hpp"
 #include "stream_callbacks.hpp"
 
+#include <condition_variable>
+
 namespace stream::image::lin_impl
 {
 struct StreamDeleter final
@@ -44,7 +46,7 @@ public:
             READY
         };
         std::condition_variable cv;
-        std::mutex mutex;
+        mutable std::mutex mutex;
 
         Status status;
 
@@ -60,7 +62,7 @@ public:
     bool connect(uint32_t window_index, const StandartConnectionParams& params);
 
 private:
-    Wire m_wire;
+    std::shared_ptr<Wire> m_wire;
 
     CreatedByCore m_syncer;
     std::unique_ptr<pw_stream, StreamDeleter> m_stream;

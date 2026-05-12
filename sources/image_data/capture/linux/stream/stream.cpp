@@ -49,7 +49,7 @@ Stream::addListener(pw_stream_events callbacks_setup)
             [this](spa_hook* listener, const pw_stream_events* events)
         {
             m_syncer.call(pw_stream_add_listener, m_stream.get(), listener,
-                          events, &wire_);
+                          events, m_wire.get());
             if (!listener)
             {
                 return false;

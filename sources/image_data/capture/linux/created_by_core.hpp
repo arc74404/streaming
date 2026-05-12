@@ -2,6 +2,7 @@
 #include <pipewire/pipewire.h>
 
 #include <utility>
+#include <functional>
 
 #include "sync_func.hpp"
 
