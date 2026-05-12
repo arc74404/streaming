@@ -21,13 +21,13 @@ class LinuxOutput final : public IOutput<LinuxOutput>
 public:
     using ProxyBuffer = ProxyViewInVideoBuffer<pw_buffer, LinControler>;
 
-    LinuxOutput(std::unique_ptr<Listener<pw_stream_events>>&& listener);
+    LinuxOutput(std::unique_ptr<Stream::Wire>&& listener);
 
     std::wstring getNameImpl() const;
 
     std::optional<ProxyBuffer> captureImpl();
 
 private:
-    std::unique_ptr<Listener<pw_stream_events>> m_listener;
+    std::unique_ptr<Stream::Wire> m_wire;
 };
 } // namespace stream::image::lin_impl

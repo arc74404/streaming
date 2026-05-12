@@ -10,9 +10,10 @@ namespace stream::image::lin_impl
 void
 pw_stream_callbacks::on_process(void* user_data)
 {
+    std::cout << "on process\n";
     Stream::Wire* wire = static_cast<Stream::Wire*>(user_data);
 
-    pw_buffer* buf = pw_stream_dequeue_buffer(wire->stream);
+    pw_buffer* buf = pw_stream_dequeue_buffer(wire->m_stream);
 
     if (buf == nullptr)
     {
@@ -44,7 +45,7 @@ pw_stream_callbacks::on_process(void* user_data)
     }
 
 queue_buffer:
-    pw_stream_queue_buffer(wire->stream, buf);
+    pw_stream_queue_buffer(wire->m_stream, buf);
 }
 
 void

@@ -2,6 +2,11 @@
 
 namespace stream::image::lin_impl
 {
+
+LinControler::LinControler(Stream::Wire& wire) : m_wire(wire)
+{
+}
+
 bool
 LinControler::updateDataOnGui()
 {
@@ -11,6 +16,7 @@ LinControler::updateDataOnGui()
 bool
 LinControler::fillStaging(pw_buffer& buffer)
 {
+    m_wire.listen();
     return true;
 }
 

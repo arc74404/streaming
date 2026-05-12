@@ -117,15 +117,15 @@ LinuxCapturer::setupOutputs()
 
     m_streams.emplace_back(std::move(stream));
 
-    auto&& listener = m_streams[0].addListener(
+    std::unique_ptr<lin_impl::Stream::Wire> wire = m_streams[0].CreateWire(
         lin_impl::pw_stream_callbacks::standartCallbacks());
 
-    if (!listener)
+    if (nullptr == wire)
     {
         return false;
     }
 
-    m_outputs.emplace_back(std::move(listener));
+    m_outputs.emplace_back(std::move(wire));
     return true;
 }
 

@@ -8,7 +8,7 @@
 namespace stream::image::lin_impl
 {
 Stream::Stream(pw_core* core, pw_thread_loop* loop)
-    : m_stream(nullptr, StreamDeleter{loop}), m_syncer(loop)
+    : m_stream(nullptr, StreamDeleter(CreatedByCore(loop))), m_syncer(loop)
 {
     auto* data = pw_stream_new(core, nullptr, nullptr);
     if (nullptr == data)
@@ -40,24 +40,27 @@ Stream::connect(uint32_t window_index,
     return res == 0;
 }
 
-std::unique_ptr<Listener<pw_stream_events>>
-Stream::addListener(pw_stream_events callbacks_setup)
+std::unique_ptr<Stream::Wire>
+Stream::CreateWire(pw_stream_events callbacks_setup) noexcept
 {
     try
     {
+        std::unique_ptr<Stream::Wire> result =
+            std::make_unique<Wire>(m_stream.get());
+
         auto creater =
-            [this](spa_hook* listener, const pw_stream_events* events)
+            [this, &result](spa_hook* listener, const pw_stream_events* events)
         {
             m_syncer.call(pw_stream_add_listener, m_stream.get(), listener,
-                          events, m_wire.get());
+                          events, result.get());
             if (!listener)
             {
                 return false;
             }
             return true;
         };
-        return std::make_unique<Listener<pw_stream_events>>(creater,
-                                                            callbacks_setup);
+        result->initListener(creater, callbacks_setup);
+        return std::move(result);
     }
     catch (...)
     {

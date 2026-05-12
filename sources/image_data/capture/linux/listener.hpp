@@ -1,7 +1,10 @@
 #pragma once
 
 #include <pipewire/pipewire.h>
+
 #include <stdexcept>
+
+#include "created_by_core.hpp"
 
 namespace stream::image::lin_impl
 {
@@ -26,12 +29,20 @@ public:
     Listener& operator=(const Listener&) = delete;
     Listener& operator=(Listener&&)      = delete;
 
-    ~Listener() noexcept
+    void Delete()
     {
+        deleted = true;
         spa_hook_remove(&m_listener);
     }
 
+    ~Listener() noexcept
+    {
+        if (false == deleted) spa_hook_remove(&m_listener);
+    }
+
 private:
+    bool deleted = false;
+
     Events m_events;
     spa_hook m_listener;
 };

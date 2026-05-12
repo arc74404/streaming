@@ -26,6 +26,9 @@ main()
     {
         std::wcout << r.name << '\n';
     }
+
+    std::this_thread::sleep_for(std::chrono::seconds(2));
+
     auto active_buffer = capturer.capture(0);
 
     image::Screener screener;
@@ -48,6 +51,5 @@ main()
             std::this_thread::sleep_for(std::chrono::seconds(1));
         }
     }
-    std::this_thread::sleep_for(std::chrono::nanoseconds(1000000));
     return 0;
 }
