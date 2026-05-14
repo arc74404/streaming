@@ -12,14 +12,7 @@
 
 namespace stream::image
 {
-template <typename T>
-concept OutConcept = requires(T& out) {
-    ScreenInfo(out.getInfo());
-    ScreenInfo(out);
-    ProxyViewInVideoBuffer(out.capture().value());
-};
-
-template <OutConcept Out>
+template <typename Out>
 class ICapturer
 {
 public:

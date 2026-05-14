@@ -80,7 +80,7 @@ LinuxCapturer::start() noexcept
         std::unique_ptr<lin_impl::Registry> registry = m_core.createRegistry();
 
         std::vector<stream::image::lin_impl::ScreenIdAndDescription> info =
-            registry->getIdsAndDescriptions();
+           registry->getIdsAndDescriptions();
 
         if (false == setupOutputs())
         {

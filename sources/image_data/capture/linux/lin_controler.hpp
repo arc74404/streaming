@@ -14,9 +14,9 @@ public:
 
     bool updateDataOnGui();
 
-    bool fillStaging(pw_buffer& buffer);
+    bool fillStaging();
 
-    bool shareData(pw_buffer& buffer, Data& data);
+    bool shareData(Data& data);
 
 private:
     Stream::Wire& m_wire;

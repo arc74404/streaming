@@ -11,7 +11,12 @@ void
 pw_stream_callbacks::on_process(void* user_data)
 {
     std::cout << "on process\n";
+
     Stream::Wire* wire = static_cast<Stream::Wire*>(user_data);
+
+    if(false == wire->isListening()){
+        return;
+    }
 
     pw_buffer* buf = pw_stream_dequeue_buffer(wire->m_stream);
 

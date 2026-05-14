@@ -19,7 +19,7 @@ class Registry;
 class LinuxOutput final : public IOutput<LinuxOutput>
 {
 public:
-    using ProxyBuffer = ProxyViewInVideoBuffer<pw_buffer, LinControler>;
+    using ProxyBuffer = LinControler;
 
     LinuxOutput(std::unique_ptr<Stream::Wire>&& listener);
 

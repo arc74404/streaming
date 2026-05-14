@@ -14,14 +14,14 @@ LinControler::updateDataOnGui()
 }
 
 bool
-LinControler::fillStaging(pw_buffer& buffer)
+LinControler::fillStaging()
 {
-    m_wire.listen();
+    m_wire.listenOnce();
     return true;
 }
 
 bool
-LinControler::shareData(pw_buffer& buffer, Data& data)
+LinControler::shareData(Data& data)
 {
     return true;
 }

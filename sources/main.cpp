@@ -20,12 +20,8 @@ main()
     {
         return 1;
     }
-    auto&& info = capturer.screensInfo();
 
-    for (auto&& r : info)
-    {
-        std::wcout << r.name << '\n';
-    }
+    auto&& info = capturer.screensInfo();
 
     std::this_thread::sleep_for(std::chrono::seconds(2));
 
@@ -43,7 +39,8 @@ main()
 
         while (iter_count++ < 5)
         {
-            buf.fillStaging(data);
+            buf.fillStaging();
+            buf.shareData(data);
 
             screener.write(data,
                            "screen_" + std::to_string(iter_count) + ".png");

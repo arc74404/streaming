@@ -51,7 +51,7 @@ public:
         {
             m_listener.emplace(std::forward<ListenerArgs>(l_args)...);
         }
-        void listen() noexcept
+        void listenOnce() noexcept
         {
             std::lock_guard lock(mutex);
             listen_flag = true;
@@ -62,6 +62,11 @@ public:
 
     private:
         friend void pw_stream_callbacks::on_process(void* user_data);
+
+        bool isListening() const {
+            std::lock_guard lock(mutex);
+            return listen_flag;
+        }
 
         enum class Status
         {

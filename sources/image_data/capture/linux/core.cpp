@@ -72,7 +72,6 @@ Core::createRegistry()
 {
     lock();
     auto reg = std::make_unique<Registry>(m_core, m_loop.get());
-    sync();
     unlock();
     return reg;
 }
@@ -82,6 +81,7 @@ Core::createStream()
 {
     lock();
     Stream stream(m_core, m_loop.get());
+    sync();
     unlock();
     return stream;
 }

@@ -17,10 +17,7 @@ LinuxOutput::getNameImpl() const
 std::optional<LinuxOutput::ProxyBuffer>
 LinuxOutput::captureImpl()
 {
-    LinControler controler(m_wire.get());
-
-    // LinuxOutput::ProxyBuffer buffer();
-    return std::nullopt;
+    return LinControler(*m_wire.get());
 }
 
 } // namespace stream::image::lin_impl
