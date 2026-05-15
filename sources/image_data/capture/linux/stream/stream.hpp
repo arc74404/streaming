@@ -12,6 +12,7 @@
 
 #include "connection_params.hpp"
 #include "stream_callbacks.hpp"
+#include "wire.hpp"
 
 namespace stream::image::lin_impl
 {
@@ -40,50 +41,6 @@ struct StreamDeleter final
 class Stream final
 {
 public:
-    struct Wire final
-    {
-        Wire(pw_stream* stream) : m_stream(stream)
-        {
-        }
-
-        template <typename... ListenerArgs>
-        void initListener(ListenerArgs&&... l_args)
-        {
-            m_listener.emplace(std::forward<ListenerArgs>(l_args)...);
-        }
-        void listenOnce() noexcept
-        {
-            std::lock_guard lock(mutex);
-            listen_flag = true;
-        }
-
-    private:
-        bool listen_flag = false;
-
-    private:
-        friend void pw_stream_callbacks::on_process(void* user_data);
-
-        bool isListening() const {
-            std::lock_guard lock(mutex);
-            return listen_flag;
-        }
-
-        enum class Status
-        {
-            BAD,
-            READY
-        };
-        std::optional<Listener<pw_stream_events>> m_listener;
-
-        std::condition_variable cv;
-        mutable std::mutex mutex;
-
-        Status status;
-
-        pw_stream* m_stream;
-
-        std::vector<uint8_t> pixels;
-    };
     explicit Stream(pw_core* core, pw_thread_loop* loop);
 
     std::unique_ptr<Wire> CreateWire(pw_stream_events callbacks_setup) noexcept;

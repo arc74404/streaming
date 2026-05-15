@@ -6,12 +6,11 @@
 #include <stdexcept>
 #include <vector>
 
-#include "../buf/proxy_view_in_video_buffer.hpp"
-
 #include "ioutput.hpp"
 
 namespace stream::image
 {
+
 template <typename Out>
 class ICapturer
 {

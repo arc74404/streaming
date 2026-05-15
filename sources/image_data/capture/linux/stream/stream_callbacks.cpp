@@ -1,9 +1,11 @@
 #include "stream_callbacks.hpp"
 
+#include <spa/param/video/format-utils.h>
+
 #include <iostream>
 #include <mutex>
 
-#include "stream.hpp"
+#include "wire.hpp"
 
 namespace stream::image::lin_impl
 {
@@ -12,45 +14,14 @@ pw_stream_callbacks::on_process(void* user_data)
 {
     std::cout << "on process\n";
 
-    Stream::Wire* wire = static_cast<Stream::Wire*>(user_data);
+    Wire* wire = static_cast<Wire*>(user_data);
 
-    if(false == wire->isListening()){
+    if (false == wire->isListening())
+    {
         return;
     }
 
-    pw_buffer* buf = pw_stream_dequeue_buffer(wire->m_stream);
-
-    if (buf == nullptr)
-    {
-        {
-            std::lock_guard lock(wire->mutex);
-            wire->status = Stream::Wire::Status::BAD;
-        }
-        wire->cv.notify_all();
-        return;
-    }
-    spa_data* data = nullptr;
-
-    if (nullptr == buf->buffer)
-    {
-        goto queue_buffer;
-    }
-
-    data = &buf->buffer->datas[0];
-
-    if (data->data)
-    {
-        {
-            std::lock_guard lock(wire->mutex);
-            wire->pixels.resize(data->chunk->size);
-            memcpy(wire->pixels.data(), data->data, data->chunk->size);
-            wire->status = Stream::Wire::Status::READY;
-        }
-        wire->cv.notify_one();
-    }
-
-queue_buffer:
-    pw_stream_queue_buffer(wire->m_stream, buf);
+    wire->loadBuffer();
 }
 
 void
@@ -58,9 +29,14 @@ pw_stream_callbacks::on_param_changed(void* user_data,
                                       uint32_t id,
                                       const struct spa_pod* param)
 {
-    auto* self = static_cast<Stream::Wire*>(user_data);
+    auto* self = static_cast<Wire*>(user_data);
 
     if (param == nullptr || id != SPA_PARAM_Format) return;
+
+    spa_video_info_raw info{};
+    if (spa_format_video_raw_parse(param, &info) < 0) return;
+
+    self->resetWH(info.size.width, info.size.height);
 }
 
 void
@@ -69,7 +45,7 @@ pw_stream_callbacks::on_state_changed(void* user_data,
                                       enum pw_stream_state new_state,
                                       const char* error_message)
 {
-    auto* self = static_cast<Stream::Wire*>(user_data);
+    auto* self = static_cast<Wire*>(user_data);
 
     switch (new_state)
     {

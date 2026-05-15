@@ -3,8 +3,7 @@
 namespace stream::image::lin_impl
 {
 
-LinuxOutput::LinuxOutput(std::unique_ptr<Stream::Wire>&& wire)
-    : m_wire(std::move(wire))
+LinuxOutput::LinuxOutput(std::unique_ptr<Wire>&& wire) : m_wire(std::move(wire))
 {
 }
 
@@ -17,7 +16,7 @@ LinuxOutput::getNameImpl() const
 std::optional<LinuxOutput::ProxyBuffer>
 LinuxOutput::captureImpl()
 {
-    return LinControler(*m_wire.get());
+    return ProxyBuffer(*m_wire.get());
 }
 
 } // namespace stream::image::lin_impl

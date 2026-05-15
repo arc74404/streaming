@@ -6,10 +6,9 @@
 #include <cstdint>
 #include <optional>
 
+#include "../../buf/data_getter.hpp"
 #include "../ioutput.hpp"
 #include "stream/stream.hpp"
-
-#include "lin_controler.hpp"
 
 namespace stream::image::lin_impl
 {
@@ -19,15 +18,32 @@ class Registry;
 class LinuxOutput final : public IOutput<LinuxOutput>
 {
 public:
-    using ProxyBuffer = LinControler;
+    struct ProxyBuffer
+    {
+    public:
+        ProxyBuffer(Wire& wire) : m_wire(wire)
+        {
+        }
+        void listenOn()
+        {
+            m_wire.listenOn();
+        }
+        bool get(image::Data& getter) const
+        {
+            return m_wire.share(getter);
+        }
 
-    LinuxOutput(std::unique_ptr<Stream::Wire>&& listener);
+    private:
+        Wire& m_wire;
+    };
+
+    LinuxOutput(std::unique_ptr<Wire>&& listener);
 
     std::wstring getNameImpl() const;
 
     std::optional<ProxyBuffer> captureImpl();
 
 private:
-    std::unique_ptr<Stream::Wire> m_wire;
+    std::unique_ptr<Wire> m_wire;
 };
 } // namespace stream::image::lin_impl

@@ -40,13 +40,12 @@ Stream::connect(uint32_t window_index,
     return res == 0;
 }
 
-std::unique_ptr<Stream::Wire>
+std::unique_ptr<Wire>
 Stream::CreateWire(pw_stream_events callbacks_setup) noexcept
 {
     try
     {
-        std::unique_ptr<Stream::Wire> result =
-            std::make_unique<Wire>(m_stream.get());
+        std::unique_ptr<Wire> result = std::make_unique<Wire>(m_stream.get());
 
         auto creater =
             [this, &result](spa_hook* listener, const pw_stream_events* events)

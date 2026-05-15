@@ -2,8 +2,6 @@
 
 #include <string>
 
-#include "../buf/proxy_view_in_video_buffer.hpp"
-
 #include "screen_info.hpp"
 
 namespace stream::image

@@ -23,8 +23,6 @@ main()
 
     auto&& info = capturer.screensInfo();
 
-    std::this_thread::sleep_for(std::chrono::seconds(2));
-
     auto active_buffer = capturer.capture(0);
 
     image::Screener screener;
@@ -35,17 +33,24 @@ main()
 
         auto& buf = active_buffer.value();
 
+        buf.listenOn();
+
         int iter_count = 0;
 
-        while (iter_count++ < 5)
+        while (iter_count < 5)
         {
-            buf.fillStaging();
-            buf.shareData(data);
+            // std::cout << "iter_count: " << iter_count << '\n';
+            if (false == buf.get(data))
+            {
+                std::cout << "continue\n";
+                continue;
+            }
+            ++iter_count;
 
             screener.write(data,
                            "screen_" + std::to_string(iter_count) + ".png");
 
-            std::this_thread::sleep_for(std::chrono::seconds(1));
+            //     // std::this_thread::sleep_for(std::chrono::seconds(1));
         }
     }
     return 0;

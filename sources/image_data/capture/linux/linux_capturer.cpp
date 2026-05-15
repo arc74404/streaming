@@ -80,7 +80,7 @@ LinuxCapturer::start() noexcept
         std::unique_ptr<lin_impl::Registry> registry = m_core.createRegistry();
 
         std::vector<stream::image::lin_impl::ScreenIdAndDescription> info =
-           registry->getIdsAndDescriptions();
+            registry->getIdsAndDescriptions();
 
         if (false == setupOutputs())
         {
@@ -117,7 +117,7 @@ LinuxCapturer::setupOutputs()
 
     m_streams.emplace_back(std::move(stream));
 
-    std::unique_ptr<lin_impl::Stream::Wire> wire = m_streams[0].CreateWire(
+    std::unique_ptr<lin_impl::Wire> wire = m_streams[0].CreateWire(
         lin_impl::pw_stream_callbacks::standartCallbacks());
 
     if (nullptr == wire)
