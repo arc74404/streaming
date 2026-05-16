@@ -24,7 +24,7 @@ public:
         ProxyBuffer(Wire& wire) : m_wire(wire)
         {
         }
-        void listenOn()
+        void load()
         {
             m_wire.listenOn();
         }

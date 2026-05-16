@@ -12,12 +12,6 @@ Wire::listenOn()
 }
 
 bool
-Wire::isListening() const
-{
-    return listen_flag;
-}
-
-bool
 Wire::IsValid() const noexcept
 {
     return is_valid;
@@ -26,41 +20,79 @@ Wire::IsValid() const noexcept
 bool
 Wire::loadBuffer() noexcept
 {
-    if (m_bufs[buf_for_load])
-    {
-        pw_stream_queue_buffer(m_stream, m_bufs[buf_for_load]);
-    }
-    m_bufs[buf_for_load] = pw_stream_dequeue_buffer(m_stream);
-    if (!m_bufs[buf_for_load])
+    std::lock_guard lock(load_share_mutex);
+
+    pw_buffer* buffer = nullptr;
+
+    buffer = pw_stream_dequeue_buffer(m_stream);
+
+    if (!buffer)
     {
         is_valid = false;
+        goto ret_buffer;
+    }
+    else
+    {
+        spa_buffer* spa_buf = buffer->buffer;
+
+        if (!spa_buf || !spa_buf->datas || !spa_buf->datas->data)
+        {
+            m_pixels.resize(0);
+        }
+        else
+        {
+            if(false == listen_flag) {
+                goto ret_buffer;
+            }
+            // copying data
+            CopyDataInPixels(spa_buf);
+            listen_flag = false; // wait untill user said  
+        }
     }
 
+ret_buffer:
+
+    pw_stream_queue_buffer(m_stream, buffer);  
+    
     return is_valid;
 }
 
-bool
-Wire::share(image::Data& getter) const
-{
-    bool buf_for_user;
-    {
-        std::unique_lock lock(buf_for_load_mutex);
-        buf_for_user = ~buf_for_load;
+void Wire::CopyDataInPixels(spa_buffer* buf){
+    std::cout << "COPY\n";
+    m_pixels.resize(buf->datas->chunk->size);
+    memcpy(m_pixels.data(), buf->datas->data, m_pixels.size());
+
+    for(size_t i = 0; i < m_pixels.size() / 4; ++i) {
+        uint32_t offset = i * 4;
+        uint8_t b = m_pixels[offset];
+        uint8_t g = m_pixels[offset + 1];
+        uint8_t r = m_pixels[offset + 2];
+            
+        m_pixels[offset] = r;
+        m_pixels[offset + 1] = g;
+        m_pixels[offset + 2] = b;
+        m_pixels[offset + 3] = 255;
     }
+
+    m_stride = buf->datas->chunk->stride;
+}
+
+void Wire::resetWH(uint32_t w, uint32_t h) noexcept
+{
+    m_width  = w;
+    m_height = h;
+}
+
+bool
+Wire::share(image::Data& getter)
+{
+    std::lock_guard lock(load_share_mutex);
     if (!is_valid) return false;
 
-    if (!m_bufs[buf_for_user]) return false;
+    if (m_pixels.size() == 0) return false;
 
-    spa_buffer* spa_buf = m_bufs[buf_for_user]->buffer;
-
-    if (!spa_buf || !spa_buf->datas || !spa_buf->datas->data)
-    {
-        getter.data = nullptr;
-        return false;
-    }
-
-    getter.data           = m_bufs[buf_for_user]->buffer->datas->data;
-    getter.row_pitch      = spa_buf->datas[0].chunk->stride;
+    getter.data           = m_pixels.data();
+    getter.row_pitch      = m_stride;
     getter.height         = m_height;
     getter.width          = m_width;
     getter.channels_count = 4;

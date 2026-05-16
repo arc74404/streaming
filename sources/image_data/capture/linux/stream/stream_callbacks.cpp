@@ -12,16 +12,7 @@ namespace stream::image::lin_impl
 void
 pw_stream_callbacks::on_process(void* user_data)
 {
-    std::cout << "on process\n";
-
-    Wire* wire = static_cast<Wire*>(user_data);
-
-    if (false == wire->isListening())
-    {
-        return;
-    }
-
-    wire->loadBuffer();
+    static_cast<Wire*>(user_data)->loadBuffer();
 }
 
 void

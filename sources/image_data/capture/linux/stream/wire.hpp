@@ -10,8 +10,9 @@
 
 namespace stream::image::lin_impl
 {
-struct Wire final
+class Wire final
 {
+public:
     Wire(pw_stream* stream) : m_stream(stream)
     {
     }
@@ -22,34 +23,35 @@ struct Wire final
         m_listener.emplace(std::forward<ListenerArgs>(l_args)...);
     }
     void listenOn();
-    bool isListening() const;
 
-    bool share(image::Data& getter) const;
+    bool share(image::Data& getter);
 
     // api for callbacks
+
     bool loadBuffer() noexcept;
 
     bool IsValid() const noexcept;
 
-    void resetWH(uint32_t w, uint32_t h) noexcept
-    {
-        m_width  = w;
-        m_height = h;
-    }
+    void resetWH(uint32_t w, uint32_t h) noexcept;
 
 private:
     std::atomic<bool> listen_flag = false;
 
 private:
+
+    void CopyDataInPixels(spa_buffer* buf);
+
     uint32_t m_width;
     uint32_t m_height;
 
-    mutable std::mutex buf_for_load_mutex;
-    bool buf_for_load = 0;
+    uint32_t m_stride;
+    std::vector<uint8_t> m_pixels;
+
+    mutable std::mutex load_share_mutex;
 
     std::atomic<bool> is_valid = true;
 
-    pw_buffer* m_bufs[2] = {nullptr, nullptr};
+    int front_buffer;
 
     std::optional<Listener<pw_stream_events>> m_listener;
 

@@ -20,7 +20,7 @@ main()
     {
         return 1;
     }
-
+  
     auto&& info = capturer.screensInfo();
 
     auto active_buffer = capturer.capture(0);
@@ -33,24 +33,22 @@ main()
 
         auto& buf = active_buffer.value();
 
-        buf.listenOn();
-
         int iter_count = 0;
 
         while (iter_count < 5)
         {
-            // std::cout << "iter_count: " << iter_count << '\n';
+            buf.load();
+
             if (false == buf.get(data))
             {
-                std::cout << "continue\n";
                 continue;
             }
             ++iter_count;
 
             screener.write(data,
-                           "screen_" + std::to_string(iter_count) + ".png");
+                            "screen_" + std::to_string(iter_count) + ".png");
 
-            //     // std::this_thread::sleep_for(std::chrono::seconds(1));
+            // std::this_thread::sleep_for(std::chrono::seconds(1));
         }
     }
     return 0;
