@@ -28,7 +28,6 @@ struct StreamDeleter final
         {
             auto delete_lambda = [this, &s]()
             {
-                std::cout << "delete stream\n";
                 pw_stream_disconnect(s);
                 pw_stream_destroy(s);
             };

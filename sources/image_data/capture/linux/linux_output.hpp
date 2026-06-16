@@ -6,7 +6,7 @@
 #include <cstdint>
 #include <optional>
 
-#include "../../buf/data_getter.hpp"
+#include "../../data_getter.hpp"
 #include "../ioutput.hpp"
 #include "stream/stream.hpp"
 

@@ -5,7 +5,7 @@
 #include <condition_variable>
 #include <optional>
 
-#include "../../../buf/data_getter.hpp"
+#include "../../../data_getter.hpp"
 #include "../listener.hpp"
 
 namespace stream::image::lin_impl

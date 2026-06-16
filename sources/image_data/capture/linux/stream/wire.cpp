@@ -57,7 +57,6 @@ ret_buffer:
 }
 
 void Wire::CopyDataInPixels(spa_buffer* buf){
-    std::cout << "COPY\n";
     m_pixels.resize(buf->datas->chunk->size);
     memcpy(m_pixels.data(), buf->datas->data, m_pixels.size());
 

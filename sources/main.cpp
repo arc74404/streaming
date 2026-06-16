@@ -6,50 +6,68 @@
 #include <thread>
 
 #include "image_data/capturer.hpp"
-#include "image_data/screener.hpp"
+#include "io/sender.hpp"
+#include "utils/write.hpp"
+
+#include "global_params.hpp"
 
 using namespace stream;
 
 int
 main()
 {
-    std::setlocale(LC_ALL, "");
-    image::Capturer capturer;
+    std::cout << "Start\n";
+    GlobalParams<int, std::string> global_params;
+    global_params.addParam<int>("first", 4);
+    global_params.addParam<std::string>("second", "cat");
 
-    if (false == capturer.prepare())
-    {
-        return 1;
-    }
-  
-    auto&& info = capturer.screensInfo();
+    int first = global_params.getParam<int>("first");
 
-    auto active_buffer = capturer.capture(0);
+    std::cout << first << '\n';
 
-    image::Screener screener;
+    std::cout << global_params.getParam<std::string>("second");
 
-    if (active_buffer.has_value())
-    {
-        image::Data data;
+    // std::setlocale(LC_ALL, "");
+    // image::Capturer capturer;
 
-        auto& buf = active_buffer.value();
+    // if (false == capturer.prepare())
+    // {
+    //     return 1;
+    // }
 
-        int iter_count = 0;
+    // auto&& info = capturer.screensInfo();
 
-        while (iter_count < 5)
-        {
-            buf.load();
+    // auto active_buffer = capturer.capture(0);
 
-            if (false == buf.get(data))
-            {
-                continue;
-            }
-            ++iter_count;
+    // io::Sender sender;
 
-            screener.write(data,
-                            "screen_" + std::to_string(iter_count) + ".png");
+    // if (active_buffer.has_value())
+    // {
+    //     image::Data data;
 
-            // std::this_thread::sleep_for(std::chrono::seconds(1));
-        }
-    }
+    //     auto& buf = active_buffer.value();
+
+    //     int iter_count = 0;
+
+    //     while (iter_count < 5)
+    //     {
+    //         buf.load();
+
+    //         if (false == buf.get(data))
+    //         {
+    //             continue;
+    //         }
+
+    //         // splitOnChunks();
+
+    //         ++iter_count;
+
+    //         sender.sendToServer(data);
+
+    //         // utils::writeInFile(data,
+    //         //                 "screen_" + std::to_string(iter_count) +
+    //         ".png");
+    //     }
+    // }
     return 0;
 }

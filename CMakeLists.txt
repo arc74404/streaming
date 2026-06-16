@@ -5,10 +5,8 @@ cmake_minimum_required(VERSION 3.14)
 set(CMAKE_CXX_STANDARD 23)
 project(streaming)
 
-# ====== FetchContent ======
 include(FetchContent)
 
-# stb_image_write
 FetchContent_Declare(
     stb
     URL https://raw.githubusercontent.com/nothings/stb/master/stb_image_write.h
@@ -16,7 +14,6 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(stb)
 
-# ====== Сбор исходников ======
 file(GLOB_RECURSE SOURCES "sources/*.cpp")
 
 if(NOT WIN32)
@@ -26,18 +23,17 @@ if(NOT LINUX)
     list(FILTER SOURCES EXCLUDE REGEX "sources/image_data/capture/linux/.*")
 endif()
 
-# ====== Исполняемый файл ======
 add_executable(${PROJECT_NAME} ${SOURCES})
 
-# Подключаем stb (автоматически скачанный)
 target_include_directories(${PROJECT_NAME} PRIVATE ${stb_SOURCE_DIR})
 
-# ====== Windows ======
+find_package(Boost REQUIRED)
+target_link_libraries(${PROJECT_NAME} PRIVATE Boost::headers)
+
 if(WIN32)
     target_link_libraries(${PROJECT_NAME} PRIVATE d3d11.lib dxgi.lib)
 endif()
 
-# ====== Linux ======
 if(LINUX)
 
     if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
