@@ -14,13 +14,13 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(stb)
 
-file(GLOB_RECURSE SOURCES "sources/*.cpp")
+file(GLOB_RECURSE SOURCES "src/sources_client/*.cpp")
 
 if(NOT WIN32)
-    list(FILTER SOURCES EXCLUDE REGEX "sources/image_data/capture/windows/.*")
+    list(FILTER SOURCES EXCLUDE REGEX "src/sources_client/image_data/capture/windows/.*")
 endif()
 if(NOT LINUX)
-    list(FILTER SOURCES EXCLUDE REGEX "sources/image_data/capture/linux/.*")
+    list(FILTER SOURCES EXCLUDE REGEX "src/sources_client/image_data/capture/linux/.*")
 endif()
 
 add_executable(${PROJECT_NAME} ${SOURCES})
