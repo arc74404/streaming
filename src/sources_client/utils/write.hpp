@@ -6,8 +6,6 @@
 
 namespace stream::utils
 {
-
 bool
 writeInFile(const image::Data& data, std::string_view filename);
-
 }
