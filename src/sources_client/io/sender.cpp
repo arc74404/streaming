@@ -24,7 +24,7 @@ Sender::Sender(std::string_view server_name_or_ip, uint32_t port)
 
     m_udp_socket.open(udp::v4());
 
-    std::string message = "Hellow server\n";
+    std::string message = "Hello server\n";
     m_udp_socket.send_to(boost::asio::buffer(message), m_udp_server_endpoint);
 
     tcp::resolver tcp_resolver(m_io_context);
@@ -46,9 +46,11 @@ Sender::sendFrame(const image::Data& data)
 void
 Sender::sendMeta(const image::Data& data)
 {
-    // MetaPacket meta;
-    // boost::asio::write(m_tcp_socket, boost::asio::buffer(&meta,
-    // sizeof(meta)));
+    MetaPacket meta;
+    meta.height      = data.height;
+    meta.width       = data.width;
+    meta.packet_size = m_packet_size;
+    boost::asio::write(m_tcp_socket, boost::asio::buffer(&meta, sizeof(meta)));
 }
 
 } // namespace stream::io
