@@ -5,11 +5,10 @@
 #include <string>
 #include <thread>
 
+#include "../utils/global_params.hpp"
 #include "image_data/capturer.hpp"
 #include "io/sender.hpp"
 #include "utils/write.hpp"
-
-#include "../utils/global_params.hpp"
 
 using namespace stream;
 
@@ -58,6 +57,7 @@ main()
                 ++iter_count;
 
                 sender.sendFrame(data);
+                std::this_thread::sleep_for(std::chrono::seconds(1));
             }
         }
     }

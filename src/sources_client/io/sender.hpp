@@ -13,13 +13,6 @@ struct Packet final
 {
 };
 
-struct MetaPacket final
-{
-    uint32_t height;
-    uint32_t width;
-    uint32_t packet_size;
-};
-
 class Sender final
 {
 public:

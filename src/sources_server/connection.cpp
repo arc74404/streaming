@@ -1,22 +1,62 @@
 #include "connection.hpp"
 
+#include <iostream>
+
+#include "../common_structs/meta_pack.hpp"
+
 namespace stream::server
 {
-Connection::Connection(boost::asio::io_context& io_context)
-    : m_tcp_socket(io_context), m_udp_socket(io_context)
+void
+Connection::doRead()
 {
+    auto self = shared_from_this();
+
+    m_tcp_socket.async_read_some(
+        boost::asio::buffer(m_read_buffer),
+        [this, self](const boost::system::error_code& ec, std::size_t length)
+        {
+            if (ec)
+            {
+                if (ec == boost::asio::error::eof)
+                {
+                    std::cout << "Client disconnected" << std::endl;
+                }
+                else
+                {
+                    std::cout << "Read error: " << ec.message() << std::endl;
+                }
+                return;
+            }
+
+            std::cout << "Received " << length << " bytes" << std::endl;
+
+            structs::BaseStruct type_pack =
+                *reinterpret_cast<structs::BaseStruct*>(m_read_buffer.data());
+
+            std::cout << int(type_pack.m_type) << '\n';
+
+            m_read_handlers[type_pack.m_type]->Handle(m_read_buffer.data());
+
+            doRead();
+        });
 }
 
 void
-Connection::handleWrite(const boost::system::error_code&, size_t)
+Connection::handleWrite(const boost::system::error_code& err, size_t length)
 {
+    if (!err)
+    {
+        std::cout << "Welcome message sent (" << length << " bytes)"
+                  << std::endl;
+
+        doRead();
+    }
+    else
+    {
+        std::cerr << "Failed to send welcome: " << err.message() << std::endl;
+    }
 }
 
-Connection::pointer
-Connection::create(boost::asio::io_context& io_context)
-{
-    return pointer(new Connection(io_context));
-}
 tcp::socket&
 Connection::tcpSocket()
 {
@@ -31,10 +71,15 @@ Connection::udpSocket()
 void
 Connection::start()
 {
+    std::cout << "Connection::start\n";
+
     std::string message = "Connection::start\n";
 
-    auto handler = [this](const boost::system::error_code& ec,
-                          std::size_t length) { handleWrite(ec, length); };
+    auto self = shared_from_this();
+
+    auto handler =
+        [self](const boost::system::error_code& ec, std::size_t length)
+    { self->handleWrite(ec, length); };
 
     boost::asio::async_write(m_tcp_socket, boost::asio::buffer(message),
                              handler);

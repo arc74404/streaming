@@ -2,6 +2,8 @@
 
 #include <iostream>
 
+#include "../../common_structs/meta_pack.hpp"
+#include "../../common_structs/string_pack.hpp"
 namespace stream::io
 {
 
@@ -15,6 +17,7 @@ Sender::setPacketSize(uint32_t packet_size) noexcept
 Sender::Sender(std::string_view server_name_or_ip, uint32_t port)
     : m_udp_socket(m_io_context), m_tcp_socket(m_io_context)
 {
+    // UDP
     udp::resolver udp_resolver(m_io_context);
 
     m_udp_server_endpoint =
@@ -27,13 +30,16 @@ Sender::Sender(std::string_view server_name_or_ip, uint32_t port)
     std::string message = "Hello server\n";
     m_udp_socket.send_to(boost::asio::buffer(message), m_udp_server_endpoint);
 
+    // TCP
     tcp::resolver tcp_resolver(m_io_context);
     tcp::resolver::results_type tcp_endpoints =
         tcp_resolver.resolve(server_name_or_ip, std::to_string(port));
 
     boost::asio::connect(m_tcp_socket, tcp_endpoints);
 
-    boost::asio::write(m_tcp_socket, boost::asio::buffer("Hello, TCP server!"));
+    structs::StringPacket str = structs::createStrPack("Hello,  Tcp server!");
+
+    boost::asio::write(m_tcp_socket, boost::asio::buffer(&str, sizeof(str)));
 }
 
 void
@@ -46,7 +52,7 @@ Sender::sendFrame(const image::Data& data)
 void
 Sender::sendMeta(const image::Data& data)
 {
-    MetaPacket meta;
+    structs::ScreenMetaPacket meta;
     meta.height      = data.height;
     meta.width       = data.width;
     meta.packet_size = m_packet_size;
