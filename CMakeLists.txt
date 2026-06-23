@@ -5,6 +5,7 @@ set(CLIENT_NAME client)
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++23")
 
 project(streaming)
 
@@ -35,6 +36,10 @@ add_executable(${SERVER_NAME})
 
 target_sources(${SERVER_NAME} PRIVATE ${SERVER_SRC})
 
+target_compile_options(${SERVER_NAME} PRIVATE 
+    -std=c++23
+)
+
 # -------- ----------- -------- #
 
 # -------- CLIENT PART -------- #
@@ -62,6 +67,10 @@ if (LINUX)
     )
     target_include_directories(${CLIENT_NAME} PRIVATE ${SYSTEMD_INCLUDE_DIRS}) 
 endif()
+
+target_compile_options(${CLIENT_NAME} PRIVATE 
+    -std=c++23
+)
 
 # -------- ----------- -------- #
 

@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include <memory>
+#include <queue>
 
 #include "../common_structs/struct_types.hpp"
 
@@ -73,8 +74,17 @@ private:
         T m_handler;
     };
 
+    void sendACK();
+
     std::unordered_map<structs::Type, std::unique_ptr<BaseHandler>>
         m_read_handlers;
+
+    void doWrite();
+
+    void sendMessage(const std::string& message);
+
+    std::queue<std::string> m_write_queue;
+    bool m_is_writing;
 };
 
 } // namespace stream::server

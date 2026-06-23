@@ -6,11 +6,13 @@
 namespace stream::structs
 {
 #pragma pack(push, 1)
-struct ScreenMetaPacket final : private BaseStruct
+struct ScreenMetaPacket final
 {
-    ScreenMetaPacket() : BaseStruct(Type::SCREEN_META_PACKET)
+    ScreenMetaPacket() : base(Type::SCREEN_META_PACKET)
     {
     }
+
+    BaseStruct base;
 
     uint32_t height;
     uint32_t width;

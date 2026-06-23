@@ -6,6 +6,17 @@
 
 namespace stream::server
 {
+
+void
+Connection::start()
+{
+    std::cout << "Connection::start\n";
+
+    doRead();
+
+    sendMessage("Connection::start\n");
+}
+
 void
 Connection::doRead()
 {
@@ -30,15 +41,58 @@ Connection::doRead()
 
             std::cout << "Received " << length << " bytes" << std::endl;
 
-            structs::BaseStruct type_pack =
-                *reinterpret_cast<structs::BaseStruct*>(m_read_buffer.data());
+            if (length >= sizeof(structs::BaseStruct))
+            {
+                const auto* base_pack =
+                    reinterpret_cast<const structs::BaseStruct*>(
+                        m_read_buffer.data());
+                structs::Type packet_type = base_pack->m_type;
 
-            std::cout << int(type_pack.m_type) << '\n';
+                std::cout << "Packet type: " << static_cast<int>(packet_type)
+                          << '\n';
 
-            m_read_handlers[type_pack.m_type]->Handle(m_read_buffer.data());
+                if (m_read_handlers.contains(packet_type))
+                {
+                    m_read_handlers[packet_type]->Handle(m_read_buffer.data());
+                }
+            }
+
+            sendACK();
 
             doRead();
         });
+}
+
+void
+Connection::sendMessage(const std::string& message)
+{
+    m_write_queue.push(message);
+
+    if (!m_is_writing)
+    {
+        doWrite();
+    }
+}
+
+void
+Connection::doWrite()
+{
+    if (m_write_queue.empty())
+    {
+        m_is_writing = false;
+        return;
+    }
+
+    m_is_writing = true;
+
+    const std::string& message = m_write_queue.front();
+
+    auto self = shared_from_this();
+
+    boost::asio::async_write(
+        m_tcp_socket, boost::asio::buffer(message),
+        [this, self](const boost::system::error_code& err, size_t length)
+        { this->handleWrite(err, length); });
 }
 
 void
@@ -46,15 +100,26 @@ Connection::handleWrite(const boost::system::error_code& err, size_t length)
 {
     if (!err)
     {
-        std::cout << "Welcome message sent (" << length << " bytes)"
-                  << std::endl;
+        std::cout << "Successfully sent " << length << " bytes." << std::endl;
 
-        doRead();
+        if (!m_write_queue.empty())
+        {
+            m_write_queue.pop();
+        }
+
+        doWrite();
     }
     else
     {
-        std::cerr << "Failed to send welcome: " << err.message() << std::endl;
+        std::cerr << "Write error: " << err.message() << std::endl;
+        m_is_writing = false;
     }
+}
+
+void
+Connection::sendACK()
+{
+    sendMessage("ACK");
 }
 
 tcp::socket&
@@ -66,23 +131,6 @@ udp::socket&
 Connection::udpSocket()
 {
     return m_udp_socket;
-}
-
-void
-Connection::start()
-{
-    std::cout << "Connection::start\n";
-
-    std::string message = "Connection::start\n";
-
-    auto self = shared_from_this();
-
-    auto handler =
-        [self](const boost::system::error_code& ec, std::size_t length)
-    { self->handleWrite(ec, length); };
-
-    boost::asio::async_write(m_tcp_socket, boost::asio::buffer(message),
-                             handler);
 }
 
 } // namespace stream::server

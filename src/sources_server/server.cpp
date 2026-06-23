@@ -28,15 +28,17 @@ Server::handleAccept(Connection::pointer new_connection,
 void
 Server::StartAccept()
 {
-    auto str_handler = [](const char* data)
-    { std::cout << "string: " << data + 1 << '\n'; };
-
-    auto screen_handler = [](const char* data)
+    static auto str_handler = [](const char* data)
     {
-        const structs::ScreenMetaPacket& meta =
+        std::cout << "string: " << (data + sizeof(structs::BaseStruct)) << '\n';
+    };
+
+    static auto screen_handler = [](const char* data)
+    {
+        const auto& meta =
             *reinterpret_cast<const structs::ScreenMetaPacket*>(data);
-        std::cout << meta.height << "\n";
-        std::cout << meta.width << "\n";
+        std::cout << "Screen width: " << meta.width << "\n";
+        std::cout << "Screen height: " << meta.height << "\n";
     };
 
     Connection::pointer new_connection = Connection::create(

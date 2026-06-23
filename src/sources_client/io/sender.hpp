@@ -2,6 +2,9 @@
 
 #include <boost/asio.hpp>
 
+#include <mutex>
+#include <optional>
+
 #include "../image_data/data_getter.hpp"
 
 using boost::asio::ip::tcp;
@@ -20,10 +23,20 @@ public:
 
     constexpr Sender& setPacketSize(uint32_t packet_size) noexcept;
 
-    void sendFrame(const image::Data& data);
+    void sendFrames(
+        std::function<std::optional<image::Data>()>&& send_frame_callback);
+
+    void run();
 
 private:
     void sendMeta(const image::Data& data);
+
+    void handleReadTcp(const boost::system::error_code& ec, size_t length);
+    void doReadTcp();
+
+    void waitForAck();
+
+    //////////////
 
     uint32_t m_packet_size;
 
@@ -36,6 +49,15 @@ private:
     udp::socket m_udp_socket;
 
     // tcp for meta
+
+    std::condition_variable m_ack_cv;
+    mutable std::mutex m_ack_mutex;
+    bool m_ack_received;
+
+    std::array<char, 512> m_tcp_response_buf;
+
     tcp::socket m_tcp_socket;
+
+    std::function<std::optional<image::Data>()> m_send_frame_callback;
 };
 } // namespace stream::io

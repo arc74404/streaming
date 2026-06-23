@@ -39,26 +39,42 @@ main()
 
         if (active_buffer.has_value())
         {
-            image::Data data;
-
             auto& buf = active_buffer.value();
 
             int iter_count = 0;
 
-            while (iter_count < 5)
-            {
-                buf.load();
-
-                if (false == buf.get(data))
+            sender.sendFrames(
+                [&buf, &iter_count]() -> std::optional<image::Data>
                 {
-                    continue;
-                }
+                    image::Data data;
+                    buf.load();
 
-                ++iter_count;
+                    if (false == buf.get(data))
+                    {
+                        return std::nullopt;
+                    }
+                    std::cout << "heigth: " << data.height << '\n'
+                              << "width: " << data.width << '\n';
 
-                sender.sendFrame(data);
-                std::this_thread::sleep_for(std::chrono::seconds(1));
-            }
+                    ++iter_count;
+                    return data;
+                });
+
+            sender.run();
+            // while (iter_count < 5)
+            // {
+            //     image::Data data;
+            //     buf.load();
+
+            //     if (false == buf.get(data))
+            //     {
+            //         continue;
+            //     }
+            //     std::cout << "heigth: " << data.height << '\n'
+            //               << "width: " << data.width << '\n';
+
+            //     ++iter_count;
+            // }
         }
     }
     catch (std::exception& e)

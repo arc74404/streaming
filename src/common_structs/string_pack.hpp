@@ -10,12 +10,14 @@ namespace stream::structs
 {
 #pragma pack(push, 1)
 template <size_t str_size>
-struct StringPacket final : private BaseStruct
+struct StringPacket final
 {
-    StringPacket(const char (&str)[str_size]) : BaseStruct(Type::STRING)
+    StringPacket(const char (&str)[str_size]) : base(Type::STRING)
     {
         std::copy(str, str + str_size, m_val);
     }
+
+    BaseStruct base;
 
     char m_val[str_size];
 };

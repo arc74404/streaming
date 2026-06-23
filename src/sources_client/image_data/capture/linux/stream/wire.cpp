@@ -41,7 +41,8 @@ Wire::loadBuffer() noexcept
         }
         else
         {
-            if(false == listen_flag) {
+            if (false == listen_flag)
+            {
                 goto ret_buffer;
             }
             CopyDataInPixels(spa_buf);
@@ -51,12 +52,14 @@ Wire::loadBuffer() noexcept
 
 ret_buffer:
 
-    pw_stream_queue_buffer(m_stream, buffer);  
-    
+    pw_stream_queue_buffer(m_stream, buffer);
+
     return is_valid;
 }
 
-void Wire::CopyDataInPixels(spa_buffer* buf){
+void
+Wire::CopyDataInPixels(spa_buffer* buf)
+{
     m_pixels.resize(buf->datas->chunk->size);
     memcpy(m_pixels.data(), buf->datas->data, m_pixels.size());
 
@@ -64,33 +67,40 @@ void Wire::CopyDataInPixels(spa_buffer* buf){
 
     uint32_t tmp_w;
 
-    for(size_t i = 0; i < m_pixels.size() / 4; ++i) {
+    for (size_t i = 0; i < m_pixels.size() / 4; ++i)
+    {
         uint32_t offset = i * 4;
 
-        if(false == tmp_w_was && m_pixels[offset + 3] == 0) {
-            tmp_w = i;
+        if (false == tmp_w_was && m_pixels[offset + 3] == 0)
+        {
+            std::cout << "w_i: " << i << '\n';
+            tmp_w     = i;
             tmp_w_was = true;
         }
-        if(i % m_width == 1 && m_pixels[offset + 3] == 0){
-            m_height = i / m_width;
+        if (i % m_width == 1 && m_pixels[offset + 3] == 0)
+        {
+            // m_height = i / m_width;
+            std::cout << "i: " << i << '\n';
             break;
         }
 
         uint8_t b = m_pixels[offset];
         uint8_t g = m_pixels[offset + 1];
         uint8_t r = m_pixels[offset + 2];
-            
-        m_pixels[offset] = r;
+
+        m_pixels[offset]     = r;
         m_pixels[offset + 1] = g;
         m_pixels[offset + 2] = b;
         m_pixels[offset + 3] = 255;
     }
-    m_width = tmp_w;
+    // m_width = tmp_w;
+    std::cout << "m_height: " << m_height << '\n';
 
     m_stride = buf->datas->chunk->stride;
 }
 
-void Wire::resetWH(uint32_t w, uint32_t h) noexcept
+void
+Wire::resetWH(uint32_t w, uint32_t h) noexcept
 {
     m_width  = w;
     m_height = h;
@@ -100,7 +110,7 @@ bool
 Wire::share(image::Data& getter)
 {
     std::lock_guard lock(load_share_mutex);
-    if (!is_valid) return false;
+    if (false == is_valid) return false;
 
     if (m_pixels.size() == 0) return false;
 
