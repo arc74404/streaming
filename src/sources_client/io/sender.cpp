@@ -5,6 +5,7 @@
 
 #include "../../common_structs/meta_pack.hpp"
 #include "../../common_structs/string_pack.hpp"
+#include "../../utils/cut_on_chunks.hpp"
 
 namespace stream::io
 {
@@ -121,7 +122,14 @@ Sender::run()
 void
 Sender::sendDataUdp(const image::Data& data)
 {
-    
+    auto&& result = cutOnChunks(static_cast<size_t>(data.height) *
+                                    static_cast<size_t>(data.row_pitch),
+                                static_cast<const char*>(data.data), 512);
+
+    for (const auto& chunk_buffers : result.buffers)
+    {
+        m_udp_socket.send_to(chunk_buffers, m_udp_server_endpoint);
+    }
 }
 
 void

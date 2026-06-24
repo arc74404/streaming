@@ -38,10 +38,6 @@ private:
 
     void waitForAck();
 
-    // Chunks cutter //
-
-    ChunksCutter m_cutter;
-
     //////////////
 
     uint32_t m_packet_size;

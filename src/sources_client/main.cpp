@@ -55,7 +55,7 @@ main()
                     }
                     std::cout << "heigth: " << data.height << '\n'
                               << "width: " << data.width << '\n';
-
+                    std::cout << "row pitch: " << data.row_pitch / 4 << '\n';
                     ++iter_count;
                     return data;
                 });
