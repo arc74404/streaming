@@ -101,8 +101,6 @@ Sender::run()
         return;
     }
 
-    int i = 0;
-
     while (true)
     {
         std::cout << "--------- cicle ---------\n";
@@ -112,19 +110,22 @@ Sender::run()
         {
             continue;
         }
-        std::cout << data.value().height << '\n';
+        sendMetaTcp(data.value());
 
-        std::cout << data.value().width << '\n';
-
-        sendMeta(data.value());
+        sendDataUdp(data.value());
 
         waitForAck();
-        ++i;
     }
 }
 
 void
-Sender::sendMeta(const image::Data& data)
+Sender::sendDataUdp(const image::Data& data)
+{
+    
+}
+
+void
+Sender::sendMetaTcp(const image::Data& data)
 {
     structs::ScreenMetaPacket meta;
     meta.height      = data.height;

@@ -61,20 +61,6 @@ main()
                 });
 
             sender.run();
-            // while (iter_count < 5)
-            // {
-            //     image::Data data;
-            //     buf.load();
-
-            //     if (false == buf.get(data))
-            //     {
-            //         continue;
-            //     }
-            //     std::cout << "heigth: " << data.height << '\n'
-            //               << "width: " << data.width << '\n';
-
-            //     ++iter_count;
-            // }
         }
     }
     catch (std::exception& e)

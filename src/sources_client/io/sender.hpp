@@ -29,12 +29,18 @@ public:
     void run();
 
 private:
-    void sendMeta(const image::Data& data);
+    void sendMetaTcp(const image::Data& data);
+
+    void sendDataUdp(const image::Data& data);
 
     void handleReadTcp(const boost::system::error_code& ec, size_t length);
     void doReadTcp();
 
     void waitForAck();
+
+    // Chunks cutter //
+
+    ChunksCutter m_cutter;
 
     //////////////
 
