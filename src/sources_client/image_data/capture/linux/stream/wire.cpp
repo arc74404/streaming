@@ -73,14 +73,12 @@ Wire::CopyDataInPixels(spa_buffer* buf)
 
         if (false == tmp_w_was && m_pixels[offset + 3] == 0)
         {
-            std::cout << "w_i: " << i << '\n';
             tmp_w     = i;
             tmp_w_was = true;
         }
         if (i % m_width == 1 && m_pixels[offset + 3] == 0)
         {
             // m_height = i / m_width;
-            std::cout << "i: " << i << '\n';
             break;
         }
 
@@ -94,7 +92,6 @@ Wire::CopyDataInPixels(spa_buffer* buf)
         m_pixels[offset + 3] = 255;
     }
     // m_width = tmp_w;
-    std::cout << "m_height: " << m_height << '\n';
 
     m_stride = buf->datas->chunk->stride;
 }

@@ -12,7 +12,8 @@ namespace stream::structs
 template <size_t str_size>
 struct StringPacket final
 {
-    StringPacket(const char (&str)[str_size]) : base(Type::STRING)
+    StringPacket(const char (&str)[str_size], size_t user_id)
+        : base(Type::STRING, user_id)
     {
         std::copy(str, str + str_size, m_val);
     }
@@ -25,9 +26,9 @@ struct StringPacket final
 
 template <size_t N>
 StringPacket<N>
-createStrPack(const char (&str)[N])
+createStrPack(const char (&str)[N], size_t user_id)
 {
-    return StringPacket<N>(str);
+    return StringPacket<N>(str, user_id);
 };
 
 } // namespace stream::structs

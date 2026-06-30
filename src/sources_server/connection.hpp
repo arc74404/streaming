@@ -28,15 +28,16 @@ public:
     }
 
     tcp::socket& tcpSocket();
-    udp::socket& udpSocket();
 
     void start();
+    
+    void sendMessage(const std::string& message);
 
 private:
     template <typename... ReadHandlers>
     Connection(boost::asio::io_context& io_context,
                std::pair<structs::Type, ReadHandlers>&&... r_handlers)
-        : m_tcp_socket(io_context), m_udp_socket(io_context)
+        : m_tcp_socket(io_context)
     {
         auto add_handler = [this]<typename T>(std::pair<structs::Type, T>&& h)
         {
@@ -51,14 +52,13 @@ private:
                      size_t bytes_transferred);
     void doRead();
 
-    std::array<char, 512> m_read_buffer;
+    std::array<char, 512> m_tcp_read_buffer;
 
     tcp::socket m_tcp_socket;
-    udp::socket m_udp_socket;
 
     struct BaseHandler
     {
-        virtual void Handle(const char* data) = 0;
+        virtual void Handle(Connection& conn, const char* data) = 0;
     };
     template <typename T>
     struct Handler : BaseHandler
@@ -67,23 +67,21 @@ private:
         {
         }
 
-        void Handle(const char* data) override
+        void Handle(Connection& conn, const char* data) override
         {
-            m_handler(data);
+            m_handler(conn, data);
         }
         T m_handler;
     };
-
-    void sendACK();
-
     std::unordered_map<structs::Type, std::unique_ptr<BaseHandler>>
         m_read_handlers;
 
+    void sendACK();
+
     void doWrite();
 
-    void sendMessage(const std::string& message);
-
     std::queue<std::string> m_write_queue;
+
     bool m_is_writing;
 };
 

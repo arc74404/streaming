@@ -2,6 +2,7 @@
 
 #include <iostream>
 
+#include "../common_structs/meta_chunk.hpp"
 #include "../common_structs/meta_pack.hpp"
 
 namespace stream::server
@@ -23,7 +24,7 @@ Connection::doRead()
     auto self = shared_from_this();
 
     m_tcp_socket.async_read_some(
-        boost::asio::buffer(m_read_buffer),
+        boost::asio::buffer(m_tcp_read_buffer),
         [this, self](const boost::system::error_code& ec, std::size_t length)
         {
             if (ec)
@@ -39,13 +40,11 @@ Connection::doRead()
                 return;
             }
 
-            std::cout << "Received " << length << " bytes" << std::endl;
-
             if (length >= sizeof(structs::BaseStruct))
             {
                 const auto* base_pack =
                     reinterpret_cast<const structs::BaseStruct*>(
-                        m_read_buffer.data());
+                        m_tcp_read_buffer.data());
                 structs::Type packet_type = base_pack->m_type;
 
                 std::cout << "Packet type: " << static_cast<int>(packet_type)
@@ -53,7 +52,8 @@ Connection::doRead()
 
                 if (m_read_handlers.contains(packet_type))
                 {
-                    m_read_handlers[packet_type]->Handle(m_read_buffer.data());
+                    m_read_handlers[packet_type]->Handle(
+                        *this, m_tcp_read_buffer.data());
                 }
             }
 
@@ -66,9 +66,9 @@ Connection::doRead()
 void
 Connection::sendMessage(const std::string& message)
 {
-    m_write_queue.push(message);
+    m_write_queue.push(message + "$");
 
-    if (!m_is_writing)
+    if (false == m_is_writing)
     {
         doWrite();
     }
@@ -100,9 +100,7 @@ Connection::handleWrite(const boost::system::error_code& err, size_t length)
 {
     if (!err)
     {
-        std::cout << "Successfully sent " << length << " bytes." << std::endl;
-
-        if (!m_write_queue.empty())
+        if (false == m_write_queue.empty())
         {
             m_write_queue.pop();
         }
@@ -127,10 +125,4 @@ Connection::tcpSocket()
 {
     return m_tcp_socket;
 }
-udp::socket&
-Connection::udpSocket()
-{
-    return m_udp_socket;
-}
-
 } // namespace stream::server

@@ -3,6 +3,7 @@
 #include <boost/asio.hpp>
 
 #include "connection.hpp"
+#include "udp_controller.hpp"
 
 using boost::asio::ip::tcp;
 
@@ -19,7 +20,7 @@ private:
                       const boost::system::error_code& error);
 
     boost::asio::io_context& m_context;
-
+    std::shared_ptr<UdpController> m_udp;
     tcp::acceptor m_acceptor;
 };
 } // namespace stream::server

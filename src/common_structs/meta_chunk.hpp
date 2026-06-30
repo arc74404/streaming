@@ -1,21 +1,19 @@
 #pragma once
-#include <cstdint>
+#include <cstddef>
 
 #include "struct_types.hpp"
 
 namespace stream::structs
 {
 #pragma pack(push, 1)
-struct ScreenMetaPacket final
+struct MetaChunk final
 {
-    ScreenMetaPacket(size_t user_id) : base(Type::SCREEN_META_PACKET, user_id)
+    MetaChunk(size_t user_id, size_t i = 0)
+        : base(Type::META_CHUNK, user_id), index(i)
     {
     }
-
     BaseStruct base;
-
-    uint32_t height;
-    uint32_t width;
+    size_t index;
 };
 #pragma pack(pop)
 } // namespace stream::structs

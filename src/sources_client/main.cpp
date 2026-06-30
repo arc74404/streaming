@@ -41,10 +41,8 @@ main()
         {
             auto& buf = active_buffer.value();
 
-            int iter_count = 0;
-
             sender.sendFrames(
-                [&buf, &iter_count]() -> std::optional<image::Data>
+                [&buf]() -> std::optional<image::Data>
                 {
                     image::Data data;
                     buf.load();
@@ -53,10 +51,6 @@ main()
                     {
                         return std::nullopt;
                     }
-                    std::cout << "heigth: " << data.height << '\n'
-                              << "width: " << data.width << '\n';
-                    std::cout << "row pitch: " << data.row_pitch / 4 << '\n';
-                    ++iter_count;
                     return data;
                 });
 

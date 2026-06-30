@@ -2,14 +2,10 @@
 
 #include <boost/asio.hpp>
 
+#include "../common_structs/meta_chunk.hpp"
+
 namespace stream
 {
-
-struct MetaChunk final
-{
-    size_t index;
-};
-
 inline uint32_t
 calcRestInLastChunk(uint32_t size, uint32_t byte_size_per_chunk)
 {
@@ -19,7 +15,7 @@ calcRestInLastChunk(uint32_t size, uint32_t byte_size_per_chunk)
 struct CutOnChunksResult final
 {
     std::vector<std::array<boost::asio::const_buffer, 2>> buffers;
-    std::vector<MetaChunk> storage_for_meta;
+    std::vector<structs::MetaChunk> storage_for_meta;
 };
 
 inline CutOnChunksResult
@@ -30,17 +26,18 @@ cutOnChunks(size_t size, const char* data, uint32_t byte_size_per_chunk)
 
     CutOnChunksResult result;
     result.buffers.reserve(count_chunks);
-    result.storage_for_meta.resize(count_chunks);
+    result.storage_for_meta.reserve(count_chunks);
 
     size_t cur_shift_ind = 0;
     while (cur_shift_ind < count_chunks)
     {
-        MetaChunk meta{.index = cur_shift_ind};
-        result.storage_for_meta[cur_shift_ind] = (std::move(meta));
+        structs::MetaChunk meta(0, cur_shift_ind);
+
+        result.storage_for_meta.emplace_back(std::move(meta));
 
         std::array<boost::asio::const_buffer, 2> packet_buffers = {
             boost::asio::buffer(result.storage_for_meta.data() + cur_shift_ind,
-                                sizeof(MetaChunk)),
+                                sizeof(structs::MetaChunk)),
             boost::asio::buffer(data + cur_shift_ind * byte_size_per_chunk,
                                 byte_size_per_chunk)};
 
@@ -48,8 +45,6 @@ cutOnChunks(size_t size, const char* data, uint32_t byte_size_per_chunk)
 
         ++cur_shift_ind;
     }
-    std::cout << result.buffers.data() << '\n';
-    std::cout << result.storage_for_meta.data() << '\n';
     return result;
 }
 } // namespace stream

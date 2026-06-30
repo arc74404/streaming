@@ -4,6 +4,7 @@
 
 #include <mutex>
 #include <optional>
+#include <string_view>
 
 #include "../image_data/data_getter.hpp"
 
@@ -12,10 +13,6 @@ using boost::asio::ip::udp;
 
 namespace stream::io
 {
-struct Packet final
-{
-};
-
 class Sender final
 {
 public:
@@ -38,10 +35,17 @@ private:
 
     void waitForAck();
 
+    void parseResponse(std::string_view response);
+
+    // id part
+    size_t m_id = 0;
+
+    std::condition_variable m_id_cv;
+    mutable std::mutex m_id_mutex;
+    bool m_id_received = false;
+
+    void waitForId();
     //////////////
-
-    uint32_t m_packet_size;
-
     boost::asio::io_context m_io_context;
 
     // udp for data
