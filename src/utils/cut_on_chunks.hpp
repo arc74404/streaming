@@ -19,7 +19,10 @@ struct CutOnChunksResult final
 };
 
 inline CutOnChunksResult
-cutOnChunks(size_t size, const char* data, uint32_t byte_size_per_chunk)
+cutOnChunks(uint32_t id,
+            size_t size,
+            const char* data,
+            uint32_t byte_size_per_chunk)
 {
     size_t count_chunks =
         (size + byte_size_per_chunk - 1) / byte_size_per_chunk;
@@ -31,7 +34,7 @@ cutOnChunks(size_t size, const char* data, uint32_t byte_size_per_chunk)
     size_t cur_shift_ind = 0;
     while (cur_shift_ind < count_chunks)
     {
-        structs::MetaChunk meta(0, cur_shift_ind);
+        structs::MetaChunk meta(id, cur_shift_ind);
 
         result.storage_for_meta.emplace_back(std::move(meta));
 

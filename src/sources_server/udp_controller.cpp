@@ -3,6 +3,8 @@
 #include <iostream>
 
 #include "../common_structs/meta_chunk.hpp"
+#include "../utils/jpeg_compress.hpp"
+#include "../utils/write.hpp"
 
 namespace stream::server
 {
@@ -11,7 +13,13 @@ UdpController::UdpController(boost::asio::io_context& context,
                              const udp::endpoint& endpoint)
     : m_udp_socket(context, endpoint)
 {
-    std::cout << "UDP socket bound to " << endpoint << std::endl;
+}
+
+void
+UdpController::addUser(size_t id, Connection& con)
+{
+    std::cout << "emplace: " << id << '\n';
+    m_conns.emplace(id, con);
 }
 
 void
@@ -31,7 +39,6 @@ UdpController::handleUdpReceive(const boost::system::error_code& ec,
 {
     if (ec)
     {
-        std::cerr << "UDP receive error: " << ec.message() << std::endl;
         startUdpReceive();
         return;
     }
@@ -58,23 +65,23 @@ UdpController::processUdpPacket(const char* data,
     std::cout << "User " << user_id << ", chunk " << chunk_index
               << ", size: " << chunk_size << " bytes" << std::endl;
 
-    // auto it = m_connections_by_id.find(user_id);
+    auto it = m_conns.find(user_id);
 
-    // if (it != m_connections_by_id.end())
-    // {
-    //     auto connection = it->second.lock();
-    //     if (connection)
-    //     {
-    //         connection->onUdpData(chunk_data, chunk_size, *meta);
-    //     }
-    //     else
-    //     {
-    //         m_connections_by_id.erase(it);
-    //     }
-    // }
-    // else
-    // {
-    //     std::cerr << "Unknown user ID: " << user_id << std::endl;
-    // }
+    if (it != m_conns.end())
+    {
+        Connection& connection = it->second;
+        connection.pushChunkData(chunk_data, *meta);
+
+        if (connection.frameReady() || connection.timeout())
+        {
+            auto compressed = connection.compress();
+
+            std::cout << "SHOW\n";
+        }
+    }
+    else
+    {
+        std::cerr << "Unknown user ID: " << user_id << std::endl;
+    }
 }
 } // namespace stream::server

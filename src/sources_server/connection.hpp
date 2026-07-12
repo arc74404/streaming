@@ -2,11 +2,14 @@
 
 #include <boost/asio.hpp>
 
+#include <chrono>
 #include <iostream>
 #include <memory>
 #include <queue>
 
+#include "../common_structs/meta_chunk.hpp"
 #include "../common_structs/struct_types.hpp"
+#include "../utils/jpeg_farming_buffer.hpp"
 
 using boost::asio::ip::tcp;
 
@@ -30,8 +33,26 @@ public:
     tcp::socket& tcpSocket();
 
     void start();
-    
+
     void sendMessage(const std::string& message);
+
+    void pushChunkData(const char* chunk_data, const structs::MetaChunk& meta);
+
+    void setupJpegBuffer(size_t block_count, size_t block_size);
+
+    bool frameReady() const;
+
+    bool timeout() const;
+
+    void setTimeoutMs(double t) noexcept;
+
+    void startTimeout();
+
+    std::vector<uint8_t> compress() const;
+
+    void setWidth(uint32_t) noexcept;
+
+    void setHeight(uint32_t) noexcept;
 
 private:
     template <typename... ReadHandlers>
@@ -83,6 +104,18 @@ private:
     std::queue<std::string> m_write_queue;
 
     bool m_is_writing;
+
+    // data
+
+    double m_timeout = 100; // ms
+
+    std::chrono::steady_clock::time_point m_get_meta_time;
+
+    JpegFarmingBufferOneCopy m_jpeg_buffer;
+
+    uint32_t m_width = 0;
+
+    uint32_t m_height = 0;
 };
 
 } // namespace stream::server

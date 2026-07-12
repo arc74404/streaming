@@ -20,7 +20,12 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(stb)
 
+set(STB_INCLUDE_DIR ${stb_SOURCE_DIR})
+
 # ---------
+
+find_package(PkgConfig  REQUIRED)
+pkg_check_modules(TURBOJPEG REQUIRED libturbojpeg)
 
 # boost
 
@@ -74,5 +79,17 @@ target_compile_options(${CLIENT_NAME} PRIVATE
 
 # -------- ----------- -------- #
 
-target_link_libraries(${SERVER_NAME} PRIVATE Boost::headers)
-target_link_libraries(${CLIENT_NAME} PRIVATE Boost::headers)
+target_include_directories(${SERVER_NAME} PRIVATE
+    ${STB_INCLUDE_DIR} 
+    ${TURBOJPEG_INCLUDE_DIRS}
+)
+
+target_include_directories(${CLIENT_NAME} PRIVATE
+    ${STB_INCLUDE_DIR} 
+)
+
+target_link_libraries(${SERVER_NAME} PRIVATE
+    ${TURBOJPEG_LIBRARIES}    
+    Boost::headers
+    pthread
+)

@@ -4,6 +4,7 @@
 #include <ranges>
 #include <thread>
 
+#include "../../common_consts.hpp"
 #include "../../common_structs/commands.hpp"
 #include "../../common_structs/meta_pack.hpp"
 #include "../../common_structs/string_pack.hpp"
@@ -64,15 +65,17 @@ Sender::sendFrames(
 void
 Sender::parseResponse(std::string_view response)
 {
-    auto splited = std::views::split(response, "$");
+    auto splited = std::views::split(response, '$');
+
+    std::cout << "response: " << response << '\n';
 
     for (auto&& r : splited)
     {
         std::string_view rr(r.begin(), r.end());
 
-        std::cout << rr << '\n';
+        std::cout << "rr: " << rr << "\n";
 
-        if (rr == "ACK$")
+        if (rr == "ACK" || rr == "ACK$")
         {
             {
                 std::lock_guard<std::mutex> lock(m_ack_mutex);
@@ -82,6 +85,7 @@ Sender::parseResponse(std::string_view response)
         }
         else if (rr.find("id: ") != std::string::npos)
         {
+            std::cout << rr << '\n';
             {
                 std::lock_guard<std::mutex> lock(m_id_mutex);
                 m_id = std::stoull(std::string(rr.begin() + 4, rr.end()));
@@ -90,6 +94,7 @@ Sender::parseResponse(std::string_view response)
             m_id_cv.notify_one();
         }
     }
+    std::cout << "\nend\n";
 }
 
 void
@@ -164,9 +169,10 @@ Sender::run()
 void
 Sender::sendDataUdp(const image::Data& data)
 {
-    auto&& result = cutOnChunks(static_cast<size_t>(data.height) *
-                                    static_cast<size_t>(data.row_pitch),
-                                static_cast<const char*>(data.data), 512);
+    auto&& result = cutOnChunks(
+        m_id,
+        static_cast<size_t>(data.height) * static_cast<size_t>(data.row_pitch),
+        static_cast<const char*>(data.data), consts::BYTE_PER_CHUNK);
 
     for (const auto& chunk_buffers : result.buffers)
     {
@@ -177,7 +183,8 @@ Sender::sendDataUdp(const image::Data& data)
 void
 Sender::sendMetaTcp(const image::Data& data)
 {
-    structs::ScreenMetaPacket meta(0);
+    std::cout << m_id << '\n';
+    structs::ScreenMetaPacket meta(m_id);
     meta.height = data.height;
     meta.width  = data.width;
 

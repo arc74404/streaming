@@ -4,6 +4,7 @@
 
 #include "../common_structs/meta_chunk.hpp"
 #include "../common_structs/meta_pack.hpp"
+#include "../utils/jpeg_compress.hpp"
 
 namespace stream::server
 {
@@ -15,7 +16,7 @@ Connection::start()
 
     doRead();
 
-    sendMessage("Connection::start\n");
+    sendMessage("Connection::start$");
 }
 
 void
@@ -27,19 +28,6 @@ Connection::doRead()
         boost::asio::buffer(m_tcp_read_buffer),
         [this, self](const boost::system::error_code& ec, std::size_t length)
         {
-            if (ec)
-            {
-                if (ec == boost::asio::error::eof)
-                {
-                    std::cout << "Client disconnected" << std::endl;
-                }
-                else
-                {
-                    std::cout << "Read error: " << ec.message() << std::endl;
-                }
-                return;
-            }
-
             if (length >= sizeof(structs::BaseStruct))
             {
                 const auto* base_pack =
@@ -125,4 +113,65 @@ Connection::tcpSocket()
 {
     return m_tcp_socket;
 }
+
+void
+Connection::setupJpegBuffer(size_t block_count, size_t block_size)
+{
+    m_jpeg_buffer.setBlockCount(block_count);
+
+    m_jpeg_buffer.setBlockSize(block_size);
+}
+
+void
+Connection::pushChunkData(const char* chunk_data,
+                          const structs::MetaChunk& meta)
+{
+    m_jpeg_buffer.add(chunk_data, meta.index);
+}
+
+bool
+Connection::frameReady() const
+{
+    return m_jpeg_buffer.frameReady();
+}
+bool
+Connection::timeout() const
+{
+    auto elapsed = std::chrono::steady_clock::now() - m_get_meta_time;
+    double elapsed_ms =
+        std::chrono::duration_cast<std::chrono::milliseconds>(elapsed).count();
+
+    return elapsed_ms >= m_timeout;
+}
+
+void
+Connection::setTimeoutMs(double t) noexcept
+{
+    m_timeout = t;
+}
+
+void
+Connection::startTimeout()
+{
+    m_get_meta_time = std::chrono::steady_clock::now();
+}
+
+std::vector<uint8_t>
+Connection::compress() const
+{
+    return compressToJPEG(m_jpeg_buffer.data(), m_width, m_height);
+}
+
+void
+Connection::setWidth(uint32_t w) noexcept
+{
+    m_width = w;
+}
+
+void
+Connection::setHeight(uint32_t h) noexcept
+{
+    m_height = h;
+}
+
 } // namespace stream::server

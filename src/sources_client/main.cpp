@@ -6,9 +6,9 @@
 #include <thread>
 
 #include "../utils/global_params.hpp"
+#include "../utils/write.hpp"
 #include "image_data/capturer.hpp"
 #include "io/sender.hpp"
-#include "utils/write.hpp"
 
 using namespace stream;
 
